@@ -19,7 +19,7 @@ export const MkService = {
       queryFn: async (): Promise<IResEquipmentModelDetail> => {
         // const { data } = await axios.get<IResEquipmentModelDetail>(
         //   '/api/v2/equipment/model/detail',
-        //   { params },
+        //   { params: body },
         // );
         // return data;
 

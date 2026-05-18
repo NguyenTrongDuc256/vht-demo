@@ -22,9 +22,8 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import ExploreIcon from '@mui/icons-material/Explore';
 import RadarIcon from '@mui/icons-material/Radar';
 import SensorsIcon from '@mui/icons-material/Sensors';
+import { useEffect, useState } from 'react';
 import type { IPropGroupItems } from '@smart-duty/logic';
-import { setSelectedTab } from '@smart-duty/logic';
-import { useAppDispatch, useAppSelector } from '@app/hooks';
 import { DashboardCard } from './DashboardCard';
 import { equipmentColors } from '../theme';
 
@@ -61,16 +60,23 @@ export function HeroRow({
   equipmentName,
   propertyGroups,
 }: HeroRowProps) {
-  const dispatch = useAppDispatch();
-  const selectedTabId = useAppSelector((state) => state.equipment.selectedTabId);
+  const [activeTabId, setActiveTabId] = useState('');
 
-  const activeTabId = selectedTabId || propertyGroups[0]?.id || '';
+  useEffect(() => {
+    if (propertyGroups.length > 0) {
+      setActiveTabId((prev) =>
+        propertyGroups.some((g) => g.id === prev) ? prev : propertyGroups[0].id,
+      );
+    }
+  }, [propertyGroups]);
+
   const currentActiveGroup = propertyGroups.find((group) => group.id === activeTabId);
   const properties = currentActiveGroup?.properties ?? [];
   const gridSize = properties.length <= 4 ? 12 : 6;
+  const tabValue = activeTabId || propertyGroups[0]?.id || '';
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
-    dispatch(setSelectedTab(newValue));
+    setActiveTabId(newValue);
   };
 
   return (
@@ -112,7 +118,7 @@ export function HeroRow({
         </Box>
 
         <Tabs
-          value={activeTabId}
+          value={tabValue}
           onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"

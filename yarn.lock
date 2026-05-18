@@ -749,7 +749,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^1.9.0 || 2.x.x, @reduxjs/toolkit@npm:^2.12.0":
+"@reduxjs/toolkit@npm:^1.9.0 || 2.x.x":
   version: 2.12.0
   resolution: "@reduxjs/toolkit@npm:2.12.0"
   dependencies:
@@ -2490,7 +2490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-redux@npm:8.x.x || 9.x.x, react-redux@npm:^9.3.0":
+"react-redux@npm:8.x.x || 9.x.x":
   version: 9.3.0
   resolution: "react-redux@npm:9.3.0"
   dependencies:
@@ -2892,7 +2892,6 @@ __metadata:
     "@mui/icons-material": "npm:^9.0.1"
     "@mui/lab": "npm:^9.0.0-beta.3"
     "@mui/material": "npm:^9.0.1"
-    "@reduxjs/toolkit": "npm:^2.12.0"
     "@tanstack/react-query": "npm:^5.100.10"
     "@types/node": "npm:^24.12.3"
     "@types/react": "npm:^19.2.14"
@@ -2906,7 +2905,6 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     react-is: "npm:^19.2.6"
-    react-redux: "npm:^9.3.0"
     recharts: "npm:^3.8.1"
     typescript: "npm:~6.0.2"
     typescript-eslint: "npm:^8.59.2"

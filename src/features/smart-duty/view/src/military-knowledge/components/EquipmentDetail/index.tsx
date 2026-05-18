@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -10,14 +9,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
   MkService,
-  setEquipmentDetail,
-  setSelectedTab,
-  clearEquipmentDetail,
   getEquipmentDisplayTitle,
   getEquipmentHeroImage,
   getEquipmentSatelliteImage,
 } from '@smart-duty/logic';
-import { useAppDispatch, useAppSelector } from '@app/hooks';
 import { EQUIPMENT_DASHBOARD_MOCK } from '../../constants/equipment-dashboard.mock';
 import { equipmentTheme } from './theme';
 import { HeroRow } from './components/HeroRow';
@@ -29,33 +24,12 @@ import { ChartsSection } from './components/ChartsSection';
 import { EquipmentDetailSkeleton } from './components/EquipmentDetailSkeleton';
 
 const dashboard = EQUIPMENT_DASHBOARD_MOCK;
-
 const EQUIPMENT_QUERY_PARAMS = { entityId: 'VES_TYPE054A' };
 
 export function EquipmentDetail() {
-  const dispatch = useAppDispatch();
-  const selectedTabId = useAppSelector((state) => state.equipment.selectedTabId);
-
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery(
     MkService.getEquipmentModel(EQUIPMENT_QUERY_PARAMS),
   );
-
-  useEffect(() => {
-    if (!data) return;
-
-    dispatch(setEquipmentDetail(data));
-
-    const tabIds = data.propertyGroups.map((g) => g.id);
-    if (!tabIds.includes(selectedTabId)) {
-      dispatch(setSelectedTab(data.propertyGroups[0]?.id ?? ''));
-    }
-  }, [data, dispatch, selectedTabId]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearEquipmentDetail());
-    };
-  }, [dispatch]);
 
   return (
     <ThemeProvider theme={equipmentTheme}>

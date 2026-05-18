@@ -12,10 +12,3 @@ export {
   getEquipmentSatelliteImage,
   getEquipmentDisplayTitle,
 } from './utils/equipment.utils';
-export {
-  setEquipmentDetail,
-  setSelectedTab,
-  clearEquipmentDetail,
-} from './store/equipment.slice';
-export type { EquipmentState } from './store/equipment.slice';
-export { default as equipmentReducer } from './store/equipment.slice';
