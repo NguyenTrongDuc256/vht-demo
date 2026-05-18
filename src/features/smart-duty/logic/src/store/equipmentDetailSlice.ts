@@ -1,38 +1,37 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { EquipmentSpecTabId } from '../models/equipment.types';
 
 export interface EquipmentDetailUiState {
-  activeSpecTabId: EquipmentSpecTabId;
-  selectedEquipmentId: string;
+  activePropertyGroupId: string;
+  selectedModelId: string;
 }
 
 const initialState: EquipmentDetailUiState = {
-  activeSpecTabId: 'tong_quan',
-  selectedEquipmentId: 'cv-18-fujian',
+  activePropertyGroupId: '',
+  selectedModelId: 'cv-18-fujian',
 };
 
 const equipmentDetailSlice = createSlice({
   name: 'equipmentDetail',
   initialState,
   reducers: {
-    setActiveSpecTabId: (state, action: PayloadAction<EquipmentSpecTabId>) => {
-      state.activeSpecTabId = action.payload;
+    setActivePropertyGroupId: (state, action: PayloadAction<string>) => {
+      state.activePropertyGroupId = action.payload;
     },
-    setSelectedEquipmentId: (state, action: PayloadAction<string>) => {
-      state.selectedEquipmentId = action.payload;
+    setSelectedModelId: (state, action: PayloadAction<string>) => {
+      state.selectedModelId = action.payload;
     },
   },
 });
 
-export const { setActiveSpecTabId, setSelectedEquipmentId } =
+export const { setActivePropertyGroupId, setSelectedModelId } =
   equipmentDetailSlice.actions;
 
 export const equipmentDetailReducer = equipmentDetailSlice.reducer;
 
-export const selectActiveSpecTabId = (state: {
+export const selectActivePropertyGroupId = (state: {
   equipmentDetail: EquipmentDetailUiState;
-}) => state.equipmentDetail.activeSpecTabId;
+}) => state.equipmentDetail.activePropertyGroupId;
 
-export const selectSelectedEquipmentId = (state: {
+export const selectSelectedModelId = (state: {
   equipmentDetail: EquipmentDetailUiState;
-}) => state.equipmentDetail.selectedEquipmentId;
+}) => state.equipmentDetail.selectedModelId;

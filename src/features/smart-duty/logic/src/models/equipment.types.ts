@@ -1,60 +1,41 @@
-export type EquipmentSpecTabId = 'tong_quan' | 'hoa_luc' | 'co_dong' | 'phong_thu';
-
-export interface EquipmentMetric {
+export interface IPropGroupItem {
   id: string;
-  label: string;
-  value: string;
-  unit?: string;
-  subValue?: string;
-  color: string;
-  icon: string;
-}
-
-export interface EquipmentSpecTab {
-  id: EquipmentSpecTabId;
-  title: string;
-  metrics: EquipmentMetric[];
-}
-
-export interface KnowledgeNode {
-  id: string;
-  label: string;
-  color: string;
-  angle: number;
-}
-
-export interface TimelineEvent {
-  id: string;
-  date: string;
-  title: string;
-  description: string;
-  tag?: 'new' | 'hot';
-  source: string;
-  location: string;
-}
-
-export interface ChartPoint {
-  month: string;
-  events: number;
-  alerts: number;
-}
-
-export interface LocationFrequency {
-  location: string;
-  count: number;
-}
-
-export interface EquipmentDetailData {
-  id: string;
+  key?: string;
   name: string;
-  subtitle: string;
-  flagCode: string;
-  heroImage: string;
-  satelliteImage: string;
-  specTabs: EquipmentSpecTab[];
-  knowledgeNodes: KnowledgeNode[];
-  knowledgeStats: { label: string; value: string }[];
-  events: TimelineEvent[];
-  monthlyTrend: ChartPoint[];
-  locationFrequency: LocationFrequency[];
+  value: string;
+  type?: string;
+  icon?: string;
+  color?: string;
+  index?: number;
+  lang?: string;
+  refs?: unknown[];
+}
+
+export interface IPropGroupItems {
+  id: string;
+  key: string;
+  name: string;
+  parent?: string | null;
+  status?: string;
+  properties?: IPropGroupItem[];
+  type?: string;
+  value?: string;
+  refs?: unknown[];
+  deepLevel?: boolean;
+}
+
+export interface IResEquipmentModelDetail {
+  id: string;
+  code: string;
+  modelCode: string;
+  modelId: string;
+  name: string;
+  equipmentType: { equipmentCategory: { id: string } };
+  armaments: unknown[];
+  entityLinks: unknown[];
+  images: Array<{ id?: string; url: string; type?: string }>;
+  operators: unknown[];
+  propertyGroups: IPropGroupItems[];
+  variants: unknown[];
+  imagesSatellites: Array<{ id?: string; url: string; type?: string }>;
 }

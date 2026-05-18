@@ -7,10 +7,16 @@ import {
   Alert,
   Button,
 } from '@mui/material';
-import { setActiveSpecTabId } from '@smart-duty/logic';
+import {
+  setActivePropertyGroupId,
+  getEquipmentDisplayTitle,
+  getEquipmentHeroImage,
+  getEquipmentSatelliteImage,
+} from '@smart-duty/logic';
 import { useAppDispatch, useAppSelector } from '@app/hooks';
 import { useEquipmentDetail } from '../../hooks/useEquipmentDetail';
-import { useEquipmentMetrics } from '../../hooks/useEquipmentMetrics';
+import { usePropertyGroupItems } from '../../hooks/usePropertyGroupItems';
+import { EQUIPMENT_DASHBOARD_MOCK } from '../../constants/equipment-dashboard.mock';
 import { equipmentTheme } from './theme';
 import { HeaderBar } from './components/HeaderBar';
 import { HeroRow } from './components/HeroRow';
@@ -21,23 +27,25 @@ import { EventTimelineSection } from './components/EventTimelineSection';
 import { ChartsSection } from './components/ChartsSection';
 import { EquipmentDetailSkeleton } from './components/EquipmentDetailSkeleton';
 
+const dashboard = EQUIPMENT_DASHBOARD_MOCK;
+
 export function EquipmentDetail() {
   const dispatch = useAppDispatch();
-  const activeSpecTabId = useAppSelector(
-    (state) => state.equipmentDetail.activeSpecTabId,
+  const activePropertyGroupId = useAppSelector(
+    (state) => state.equipmentDetail.activePropertyGroupId,
   );
   const { data, isLoading, isError, error, refetch, isFetching } =
     useEquipmentDetail();
 
-  const metrics = useEquipmentMetrics(data?.specTabs);
+  const properties = usePropertyGroupItems(data?.propertyGroups);
 
   useEffect(() => {
-    if (!data?.specTabs.length) return;
-    const validIds = data.specTabs.map((t) => t.id);
-    if (!validIds.includes(activeSpecTabId)) {
-      dispatch(setActiveSpecTabId(data.specTabs[0].id));
+    if (!data?.propertyGroups.length) return;
+    const validIds = data.propertyGroups.map((g) => g.id);
+    if (!validIds.includes(activePropertyGroupId)) {
+      dispatch(setActivePropertyGroupId(data.propertyGroups[0].id));
     }
-  }, [data?.specTabs, activeSpecTabId, dispatch]);
+  }, [data?.propertyGroups, activePropertyGroupId, dispatch]);
 
   return (
     <ThemeProvider theme={equipmentTheme}>
@@ -69,7 +77,10 @@ export function EquipmentDetail() {
 
         {data && !isLoading && (
           <>
-            <HeaderBar name={data.name} specTabs={data.specTabs} />
+            <HeaderBar
+              title={getEquipmentDisplayTitle(data)}
+              propertyGroups={data.propertyGroups}
+            />
 
             <Box
               sx={{
@@ -80,11 +91,15 @@ export function EquipmentDetail() {
                 transition: 'opacity 0.2s',
               }}
             >
-              <HeroRow heroImage={data.heroImage} metrics={metrics} />
+              <HeroRow
+                heroImage={getEquipmentHeroImage(data)}
+                properties={properties}
+                equipmentName={data.name}
+              />
 
               <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
                 <Grid size={{ xs: 12, lg: 6 }}>
-                  <SatelliteSection image={data.satelliteImage} />
+                  <SatelliteSection image={getEquipmentSatelliteImage(data)} />
                 </Grid>
                 <Grid size={{ xs: 12, lg: 6 }}>
                   <MapSection />
@@ -94,19 +109,19 @@ export function EquipmentDetail() {
               <Grid container spacing={1.5}>
                 <Grid size={{ xs: 12, lg: 6 }}>
                   <KnowledgeGraphSection
-                    subtitle={data.subtitle}
-                    nodes={data.knowledgeNodes}
-                    stats={data.knowledgeStats}
+                    subtitle={dashboard.subtitle}
+                    nodes={dashboard.knowledgeNodes}
+                    stats={dashboard.knowledgeStats}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, lg: 6 }}>
-                  <EventTimelineSection events={data.events} />
+                  <EventTimelineSection events={dashboard.events} />
                 </Grid>
               </Grid>
 
               <ChartsSection
-                monthlyTrend={data.monthlyTrend}
-                locationFrequency={data.locationFrequency}
+                monthlyTrend={dashboard.monthlyTrend}
+                locationFrequency={dashboard.locationFrequency}
               />
             </Box>
           </>

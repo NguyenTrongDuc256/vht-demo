@@ -2,12 +2,12 @@ import { Box, Typography, Chip, Button, Stack } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import ReportIcon from '@mui/icons-material/Report';
-import type { TimelineEvent } from '@smart-duty/logic';
+import type { DashboardTimelineEvent } from '../../../constants/equipment-dashboard.mock';
 import { DashboardCard } from './DashboardCard';
 import { equipmentColors } from '../theme';
 
 interface EventTimelineSectionProps {
-  events: TimelineEvent[];
+  events: DashboardTimelineEvent[];
 }
 
 const FILTERS = ['Sự kiện thông tin', 'Xuất hiện nhà: Du Lâm', 'Đơn vị: AAAA'];
@@ -36,26 +36,9 @@ export function EventTimelineSection({ events }: EventTimelineSectionProps) {
         ))}
       </Stack>
 
-      <Box
-        sx={{
-          px: 1.5,
-          pb: 1.5,
-          overflow: 'auto',
-          maxHeight: 250,
-          '&::-webkit-scrollbar': { width: 4 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: equipmentColors.textMuted, borderRadius: 2 },
-        }}
-      >
+      <Box sx={{ px: 1.5, pb: 1.5, overflow: 'auto', maxHeight: 250 }}>
         {events.map((event, idx) => (
-          <Box
-            key={event.id}
-            sx={{
-              display: 'flex',
-              gap: 1.5,
-              mb: idx < events.length - 1 ? 2 : 0,
-              position: 'relative',
-            }}
-          >
+          <Box key={event.id} sx={{ display: 'flex', gap: 1.5, mb: idx < events.length - 1 ? 2 : 0 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
               <Box
                 sx={{
@@ -74,15 +57,7 @@ export function EventTimelineSection({ events }: EventTimelineSectionProps) {
                 {event.date}
               </Box>
               {idx < events.length - 1 && (
-                <Box
-                  sx={{
-                    width: 2,
-                    flex: 1,
-                    bgcolor: equipmentColors.cardBorderSubtle,
-                    mt: 0.5,
-                    minHeight: 24,
-                  }}
-                />
+                <Box sx={{ width: 2, flex: 1, bgcolor: equipmentColors.cardBorderSubtle, mt: 0.5, minHeight: 24 }} />
               )}
             </Box>
 
@@ -116,18 +91,10 @@ export function EventTimelineSection({ events }: EventTimelineSectionProps) {
                 {event.location}
               </Typography>
               <Stack direction="row" spacing={0.75}>
-                <Button
-                  size="small"
-                  startIcon={<MapOutlinedIcon sx={{ fontSize: 14 }} />}
-                  sx={{ fontSize: '0.6rem', color: equipmentColors.accent, py: 0.25 }}
-                >
+                <Button size="small" startIcon={<MapOutlinedIcon sx={{ fontSize: 14 }} />} sx={{ fontSize: '0.6rem', color: equipmentColors.accent, py: 0.25 }}>
                   Xem bản đồ
                 </Button>
-                <Button
-                  size="small"
-                  startIcon={<ReportIcon sx={{ fontSize: 14 }} />}
-                  sx={{ fontSize: '0.6rem', color: equipmentColors.textSecondary, py: 0.25 }}
-                >
+                <Button size="small" startIcon={<ReportIcon sx={{ fontSize: 14 }} />} sx={{ fontSize: '0.6rem', color: equipmentColors.textSecondary, py: 0.25 }}>
                   Báo cáo
                 </Button>
               </Stack>

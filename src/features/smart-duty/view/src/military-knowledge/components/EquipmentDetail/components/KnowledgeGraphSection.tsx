@@ -1,19 +1,13 @@
 import { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Grid,
-} from '@mui/material';
+import { Box, Typography, Tabs, Tab, Grid } from '@mui/material';
 import HubIcon from '@mui/icons-material/Hub';
-import type { KnowledgeNode } from '@smart-duty/logic';
+import type { DashboardKnowledgeNode } from '../../../constants/equipment-dashboard.mock';
 import { DashboardCard } from './DashboardCard';
 import { equipmentColors } from '../theme';
 
 interface KnowledgeGraphSectionProps {
   subtitle: string;
-  nodes: KnowledgeNode[];
+  nodes: DashboardKnowledgeNode[];
   stats: { label: string; value: string }[];
 }
 
@@ -97,14 +91,7 @@ export function KnowledgeGraphSection({
         </Box>
 
         <Box sx={{ flex: 1, p: 1.5, overflow: 'auto' }}>
-          <Typography
-            sx={{
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              color: equipmentColors.textPrimary,
-              mb: 0.5,
-            }}
-          >
+          <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, mb: 0.5 }}>
             {subtitle}
           </Typography>
           <Tabs
@@ -131,16 +118,9 @@ export function KnowledgeGraphSection({
           </Tabs>
           <Typography
             variant="caption"
-            sx={{
-              color: equipmentColors.textSecondary,
-              display: 'block',
-              lineHeight: 1.5,
-              mb: 1.5,
-            }}
+            sx={{ color: equipmentColors.textSecondary, display: 'block', lineHeight: 1.5, mb: 1.5 }}
           >
-            Tàu sân bay CV-18 Phúc Kiến là tàu sân bay thứ ba của Hải quân Giải phóng Nhân dân
-            Trung Quốc, trang bị hệ thống phóng máy bay điện từ EMALS và khả năng vận hành máy
-            bay tàng hình J-35.
+            Tàu sân bay CV-18 Phúc Kiến — trang bị hệ thống phóng EMALS và máy bay tàng hình J-35.
           </Typography>
           <Grid container spacing={1}>
             {stats.map((s) => (
@@ -148,7 +128,9 @@ export function KnowledgeGraphSection({
                 <Typography variant="caption" sx={{ color: equipmentColors.textMuted }}>
                   {s.label}
                 </Typography>
-                <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: equipmentColors.accentOrange }}>
+                <Typography
+                  sx={{ fontSize: '0.72rem', fontWeight: 600, color: equipmentColors.accentOrange }}
+                >
                   {s.value}
                 </Typography>
               </Grid>

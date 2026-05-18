@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   equipmentQueryKeys,
-  fetchEquipmentDetail,
+  getEquipmentModelDetail,
 } from '@smart-duty/logic';
 import { useAppSelector } from '@app/hooks';
 
 export function useEquipmentDetail() {
-  const equipmentId = useAppSelector(
-    (state) => state.equipmentDetail.selectedEquipmentId,
+  const modelId = useAppSelector(
+    (state) => state.equipmentDetail.selectedModelId,
   );
 
   return useQuery({
-    queryKey: equipmentQueryKeys.detail(equipmentId),
-    queryFn: () => fetchEquipmentDetail(equipmentId),
+    queryKey: equipmentQueryKeys.detail(modelId),
+    queryFn: () => getEquipmentModelDetail(modelId),
   });
 }

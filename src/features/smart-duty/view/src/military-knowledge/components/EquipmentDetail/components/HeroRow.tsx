@@ -14,7 +14,7 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import ExploreIcon from '@mui/icons-material/Explore';
 import RadarIcon from '@mui/icons-material/Radar';
 import SensorsIcon from '@mui/icons-material/Sensors';
-import type { EquipmentMetric } from '@smart-duty/logic';
+import type { IPropGroupItem } from '@smart-duty/logic';
 import { DashboardCard } from './DashboardCard';
 import { equipmentColors } from '../theme';
 
@@ -36,13 +36,16 @@ const ICON_MAP: Record<string, React.ReactElement> = {
   sensors: <SensorsIcon sx={{ fontSize: 18 }} />,
 };
 
+const DEFAULT_COLOR = '#00d4ff';
+
 interface HeroRowProps {
   heroImage: string;
-  metrics: EquipmentMetric[];
+  properties: IPropGroupItem[];
+  equipmentName: string;
 }
 
-export function HeroRow({ heroImage, metrics }: HeroRowProps) {
-  const gridSize = metrics.length <= 4 ? 12 : 6;
+export function HeroRow({ heroImage, properties, equipmentName }: HeroRowProps) {
+  const gridSize = properties.length <= 4 ? 12 : 6;
 
   return (
     <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
@@ -51,73 +54,71 @@ export function HeroRow({ heroImage, metrics }: HeroRowProps) {
           <Box
             component="img"
             src={heroImage}
-            alt="CV-18 Fujian"
-            sx={{
-              width: '100%',
-              height: 220,
-              objectFit: 'cover',
-              display: 'block',
-            }}
+            alt={equipmentName}
+            sx={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }}
           />
         </DashboardCard>
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <DashboardCard sx={{ height: 220, overflow: 'auto' }}>
           <Grid container sx={{ p: 1.5, height: '100%' }}>
-            {metrics.map((metric) => (
-              <Grid key={metric.id} size={gridSize} sx={{ py: 0.75, px: 0.5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                  <Box sx={{ color: metric.color, mt: 0.25 }}>
-                    {ICON_MAP[metric.icon] ?? (
-                      <SettingsIcon sx={{ fontSize: 18 }} />
-                    )}
-                  </Box>
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: equipmentColors.textMuted,
-                        display: 'block',
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {metric.label}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: metric.color,
-                        fontWeight: 700,
-                        fontSize: metrics.length <= 4 ? '1rem' : '0.9rem',
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {metric.value}
-                      {metric.unit && (
-                        <Typography
-                          component="span"
-                          sx={{ fontSize: '0.7rem', fontWeight: 400, ml: 0.25 }}
-                        >
-                          {metric.unit}
-                        </Typography>
+            {properties.map((item) => {
+              const color = item.color ?? DEFAULT_COLOR;
+              return (
+                <Grid key={item.id} size={gridSize} sx={{ py: 0.75, px: 0.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                    <Box sx={{ color, mt: 0.25 }}>
+                      {ICON_MAP[item.icon ?? ''] ?? (
+                        <SettingsIcon sx={{ fontSize: 18 }} />
                       )}
-                    </Typography>
-                    {metric.subValue && (
+                    </Box>
+                    <Box sx={{ minWidth: 0 }}>
                       <Typography
                         variant="caption"
                         sx={{
-                          color: equipmentColors.textSecondary,
+                          color: equipmentColors.textMuted,
                           display: 'block',
-                          lineHeight: 1.3,
-                          mt: 0.25,
+                          lineHeight: 1.2,
                         }}
                       >
-                        {metric.subValue}
+                        {item.name}
                       </Typography>
-                    )}
+                      <Typography
+                        sx={{
+                          color,
+                          fontWeight: 700,
+                          fontSize: properties.length <= 4 ? '1rem' : '0.9rem',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {item.value}
+                        {item.type && (
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: '0.7rem', fontWeight: 400, ml: 0.25 }}
+                          >
+                            {item.type}
+                          </Typography>
+                        )}
+                      </Typography>
+                      {item.key && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: equipmentColors.textSecondary,
+                            display: 'block',
+                            lineHeight: 1.3,
+                            mt: 0.25,
+                          }}
+                        >
+                          {item.key}
+                        </Typography>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              </Grid>
-            ))}
+                </Grid>
+              );
+            })}
           </Grid>
         </DashboardCard>
       </Grid>

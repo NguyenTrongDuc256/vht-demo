@@ -1,22 +1,22 @@
 export type {
-  EquipmentSpecTabId,
-  EquipmentMetric,
-  EquipmentSpecTab,
-  KnowledgeNode,
-  TimelineEvent,
-  ChartPoint,
-  LocationFrequency,
-  EquipmentDetailData,
+  IPropGroupItem,
+  IPropGroupItems,
+  IResEquipmentModelDetail,
 } from './models/equipment.types';
 
 export { CV18_FUJIAN_MOCK } from './data/equipment.mock';
 export { equipmentQueryKeys } from './constants/query-keys';
-export { fetchEquipmentDetail } from './services/equipment.service';
+export { getEquipmentModelDetail } from './services/equipment.service';
+export {
+  getEquipmentHeroImage,
+  getEquipmentSatelliteImage,
+  getEquipmentDisplayTitle,
+} from './utils/equipment.utils';
 export {
   equipmentDetailReducer,
-  setActiveSpecTabId,
-  setSelectedEquipmentId,
-  selectActiveSpecTabId,
-  selectSelectedEquipmentId,
+  setActivePropertyGroupId,
+  setSelectedModelId,
+  selectActivePropertyGroupId,
+  selectSelectedModelId,
 } from './store/equipmentDetailSlice';
 export type { EquipmentDetailUiState } from './store/equipmentDetailSlice';

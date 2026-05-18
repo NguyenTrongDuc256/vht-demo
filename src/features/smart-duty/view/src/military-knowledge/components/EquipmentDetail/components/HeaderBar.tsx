@@ -4,12 +4,13 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import SpeedIcon from '@mui/icons-material/Speed';
 import ShieldIcon from '@mui/icons-material/Shield';
-import type { EquipmentSpecTab, EquipmentSpecTabId } from '@smart-duty/logic';
+import SettingsIcon from '@mui/icons-material/Settings';
+import type { IPropGroupItems } from '@smart-duty/logic';
 import { useAppDispatch, useAppSelector } from '@app/hooks';
-import { setActiveSpecTabId } from '@smart-duty/logic';
+import { setActivePropertyGroupId } from '@smart-duty/logic';
 import { equipmentColors } from '../theme';
 
-const TAB_ICONS: Record<EquipmentSpecTabId, React.ReactElement> = {
+const TAB_ICONS: Record<string, React.ReactElement> = {
   tong_quan: <DashboardIcon sx={{ fontSize: 16 }} />,
   hoa_luc: <LocalFireDepartmentIcon sx={{ fontSize: 16 }} />,
   co_dong: <SpeedIcon sx={{ fontSize: 16 }} />,
@@ -17,14 +18,14 @@ const TAB_ICONS: Record<EquipmentSpecTabId, React.ReactElement> = {
 };
 
 interface HeaderBarProps {
-  name: string;
-  specTabs: EquipmentSpecTab[];
+  title: string;
+  propertyGroups: IPropGroupItems[];
 }
 
-export function HeaderBar({ name, specTabs }: HeaderBarProps) {
+export function HeaderBar({ title, propertyGroups }: HeaderBarProps) {
   const dispatch = useAppDispatch();
-  const activeSpecTabId = useAppSelector(
-    (state) => state.equipmentDetail.activeSpecTabId,
+  const activePropertyGroupId = useAppSelector(
+    (state) => state.equipmentDetail.activePropertyGroupId,
   );
 
   return (
@@ -46,24 +47,18 @@ export function HeaderBar({ name, specTabs }: HeaderBarProps) {
             width: 28,
             height: 18,
             borderRadius: 0.5,
-            background: 'linear-gradient(180deg, #de2910 50%, #de2910 50%)',
-            position: 'relative',
+            background: '#de2910',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            '&::after': {
-              content: '"★"',
-              color: '#ffde00',
-              fontSize: 10,
-              lineHeight: 1,
-            },
+            '&::after': { content: '"★"', color: '#ffde00', fontSize: 10 },
           }}
         />
         <Typography
           variant="h6"
           sx={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '0.02em' }}
         >
-          {name}
+          {title}
         </Typography>
         <IconButton size="small" sx={{ color: equipmentColors.textSecondary }}>
           <SearchIcon fontSize="small" />
@@ -71,16 +66,13 @@ export function HeaderBar({ name, specTabs }: HeaderBarProps) {
       </Box>
 
       <Tabs
-        value={activeSpecTabId}
-        onChange={(_, tabId: EquipmentSpecTabId) =>
-          dispatch(setActiveSpecTabId(tabId))
+        value={activePropertyGroupId || propertyGroups[0]?.id}
+        onChange={(_, groupId: string) =>
+          dispatch(setActivePropertyGroupId(groupId))
         }
         sx={{
           minHeight: 36,
-          '& .MuiTabs-indicator': {
-            bgcolor: equipmentColors.accent,
-            height: 2,
-          },
+          '& .MuiTabs-indicator': { bgcolor: equipmentColors.accent, height: 2 },
           '& .MuiTab-root': {
             minHeight: 36,
             py: 0.5,
@@ -93,12 +85,12 @@ export function HeaderBar({ name, specTabs }: HeaderBarProps) {
           },
         }}
       >
-        {specTabs.map((tab) => (
+        {propertyGroups.map((group) => (
           <Tab
-            key={tab.id}
-            value={tab.id}
-            label={tab.title}
-            icon={TAB_ICONS[tab.id]}
+            key={group.id}
+            value={group.id}
+            label={group.name}
+            icon={TAB_ICONS[group.key] ?? <SettingsIcon sx={{ fontSize: 16 }} />}
             iconPosition="start"
           />
         ))}
