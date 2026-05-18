@@ -5,18 +5,17 @@ export type {
 } from './models/equipment.types';
 
 export { CV18_FUJIAN_MOCK } from './data/equipment.mock';
-export { equipmentQueryKeys } from './constants/query-keys';
-export { getEquipmentModelDetail } from './services/equipment.service';
+export { MkService } from './services';
+export type { GetEquipmentModelParams } from './services';
 export {
   getEquipmentHeroImage,
   getEquipmentSatelliteImage,
   getEquipmentDisplayTitle,
 } from './utils/equipment.utils';
 export {
-  equipmentDetailReducer,
-  setActivePropertyGroupId,
-  setSelectedModelId,
-  selectActivePropertyGroupId,
-  selectSelectedModelId,
-} from './store/equipmentDetailSlice';
-export type { EquipmentDetailUiState } from './store/equipmentDetailSlice';
+  setEquipmentDetail,
+  setSelectedTab,
+  clearEquipmentDetail,
+} from './store/equipment.slice';
+export type { EquipmentState } from './store/equipment.slice';
+export { default as equipmentReducer } from './store/equipment.slice';

@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { equipmentDetailReducer } from '@smart-duty/logic';
+import { equipmentReducer } from '@smart-duty/logic';
 
 export const store = configureStore({
   reducer: {
-    equipmentDetail: equipmentDetailReducer,
+    equipment: equipmentReducer,
   },
 });
 
