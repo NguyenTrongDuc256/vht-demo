@@ -10,7 +10,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   MkService,
-  buildKnowledgeGraphFromEquipment,
+  transformToGraphData,
   getEquipmentDisplayTitle,
   getEquipmentHeroImage,
   getEquipmentSatelliteImage,
@@ -33,9 +33,9 @@ export function EquipmentDetail() {
     MkService.getEquipmentModel(EQUIPMENT_QUERY_PARAMS),
   );
 
-  // Chuyển API → graphData. Icon cấu hình tại: constants/equipment-dashboard.mock.ts → KNOWLEDGE_GRAPH_ICONS
+  // Chuyển API → graphData (transformToGraphData). Icon: KNOWLEDGE_GRAPH_ICONS bên dưới
   const knowledgeGraph = useMemo(
-    () => (data ? buildKnowledgeGraphFromEquipment(data, KNOWLEDGE_GRAPH_ICONS) : null),
+    () => (data ? transformToGraphData(data, KNOWLEDGE_GRAPH_ICONS) : null),
     [data],
   );
 

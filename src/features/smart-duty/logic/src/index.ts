@@ -22,8 +22,6 @@ export {
   getEquipmentDisplayTitle,
 } from './utils/equipment.utils';
 export {
-  assignNodePositions,
   buildKnowledgeGraphFromEquipment,
-  getNodeStyle,
-  mergeGraphNodes,
+  transformToGraphData,
 } from './utils/knowledge-graph.transform';
