@@ -6,14 +6,16 @@ import {
   Alert,
   Button,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   MkService,
+  buildKnowledgeGraphFromEquipment,
   getEquipmentDisplayTitle,
   getEquipmentHeroImage,
   getEquipmentSatelliteImage,
 } from '@smart-duty/logic';
-import { EQUIPMENT_DASHBOARD_MOCK } from '../../constants/equipment-dashboard.mock';
+import { EQUIPMENT_DASHBOARD_MOCK, KNOWLEDGE_GRAPH_ICONS } from '../../constants/equipment-dashboard.mock';
 import { equipmentTheme } from './theme';
 import { HeroRow } from './components/HeroRow';
 import { SatelliteSection } from './components/SatelliteSection';
@@ -29,6 +31,12 @@ const EQUIPMENT_QUERY_PARAMS = { entityId: 'VES_TYPE054A' };
 export function EquipmentDetail() {
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery(
     MkService.getEquipmentModel(EQUIPMENT_QUERY_PARAMS),
+  );
+
+  // Chuyển API → graphData. Icon cấu hình tại: constants/equipment-dashboard.mock.ts → KNOWLEDGE_GRAPH_ICONS
+  const knowledgeGraph = useMemo(
+    () => (data ? buildKnowledgeGraphFromEquipment(data, KNOWLEDGE_GRAPH_ICONS) : null),
+    [data],
   );
 
   return (
@@ -88,11 +96,12 @@ export function EquipmentDetail() {
 
               <Grid container spacing={1.5}>
                 <Grid size={{ xs: 12, lg: 6 }}>
-                  <KnowledgeGraphSection
-                    subtitle={dashboard.subtitle}
-                    graph={dashboard.knowledgeGraph}
-                    stats={dashboard.knowledgeStats}
-                  />
+                  {knowledgeGraph && (
+                    <KnowledgeGraphSection
+                      graph={knowledgeGraph}
+                      equipmentName={data.name}
+                    />
+                  )}
                 </Grid>
                 <Grid size={{ xs: 12, lg: 6 }}>
                   <EventTimelineSection events={dashboard.events} />

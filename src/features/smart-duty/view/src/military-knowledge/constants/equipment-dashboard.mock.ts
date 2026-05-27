@@ -1,36 +1,43 @@
 /** Dữ liệu UI bổ sung — chưa có trong API get detail, tách riêng đến khi BE bổ sung */
 
-export type KnowledgeGraphNodeType =
-  | 'carrier'
-  | 'weapon'
-  | 'fleet'
-  | 'air'
-  | 'radar'
-  | 'mission';
+import type { KnowledgeGraphData, KnowledgeGraphIconMap } from '@smart-duty/logic';
 
-export interface KnowledgeGraphNode {
-  id: string;
-  name: string;
-  val: number;
-  color: string;
-  size: number;
-  type: KnowledgeGraphNodeType;
-  /** Vị trí cố định (force-graph pin) */
-  fx?: number;
-  fy?: number;
-}
+export type {
+  KnowledgeGraphData,
+  KnowledgeGraphLink,
+  KnowledgeGraphNode,
+  KnowledgeGraphNodeType,
+} from '@smart-duty/logic';
 
-export interface KnowledgeGraphLink {
-  source: string;
-  target: string;
-  label: string;
-  color: string;
-}
-
-export interface KnowledgeGraphData {
-  nodes: KnowledgeGraphNode[];
-  links: KnowledgeGraphLink[];
-}
+/**
+ * ─── CẤU HÌNH ICON ĐỒ THỊ TRI THỨC ───────────────────────────────────────
+ *
+ * Ánh xạ `type` → đường dẫn ảnh. Mỗi node trên đồ thị có `type` (carrier, weapon, …)
+ * và sẽ lấy icon từ key tương ứng bên dưới.
+ *
+ * Cách thêm / đổi icon:
+ *   1. Đặt file vào thư mục `public/` (VD: public/images/vukhi.png)
+ *   2. URL = `/images/vukhi.png` (bỏ tiền tố `public/`)
+ *   3. Sửa giá trị tại key type cần đổi
+ *
+ * Các type hiện có (khai báo trong logic/models/knowledge-graph.types.ts):
+ *   carrier | weapon | fleet | air | radar | mission
+ *
+ * Nếu thêm type mới:
+ *   - Thêm vào KnowledgeGraphNodeType
+ *   - Thêm key + đường dẫn ở đây
+ *   - Gán nhánh → type trong BRANCH_NODE_TYPE (knowledge-graph.transform.ts)
+ *
+ * Object này được truyền vào buildKnowledgeGraphFromEquipment() tại EquipmentDetail.
+ */
+export const KNOWLEDGE_GRAPH_ICONS: KnowledgeGraphIconMap = {
+  carrier: '/favicon.svg', // node trung tâm (trang bị chính)
+  weapon: '/favicon.svg',  // nhánh vũ khí (armaments)
+  fleet: '/favicon.svg',   // nhánh lực lượng khai thác (operators)
+  air: '/favicon.svg',     // nhánh máy bay mang theo (carriers)
+  radar: '/favicon.svg',   // nhánh cảm biến (sensors)
+  mission: '/favicon.svg', // dự phòng — chưa có nhánh API tương ứng
+};
 
 export interface DashboardTimelineEvent {
   id: string;

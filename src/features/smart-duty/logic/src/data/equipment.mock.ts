@@ -8,14 +8,58 @@ export const CV18_FUJIAN_MOCK: IResEquipmentModelDetail = {
   modelId: 'm-003',
   name: 'CV-18 - FUJIAN',
   equipmentType: { equipmentCategory: { id: 'AIRCRAFT_CARRIER' } },
-  armaments: [],
+  armaments: [
+    {
+      id: 'arm-1',
+      name: 'Vũ khí',
+      value:
+        '2 bệ phóng tên lửa RIM-7 Sea Sparrow; 2 bệ phóng tên lửa RIM-116 Rolling Airframe Missile',
+    },
+    {
+      id: 'arm-2',
+      name: 'Pháo hạm',
+      value: '3×20mm Phalanx CIWS',
+    },
+  ],
   entityLinks: [],
   images: [
     {
       url: 'https://images.unsplash.com/photo-1569098644584-2106f0bb9a3b?w=1200&q=80',
     },
   ],
-  operators: [],
+  operators: [
+    {
+      id: 'op-1',
+      name: 'Lực lượng khai thác',
+      value: 'Hải quân Hoa Kỳ',
+    },
+  ],
+  carriers: [
+    {
+      id: 'car-1',
+      name: 'Máy bay mang theo',
+      value: [
+        'F/A-18E/F Super Hornet',
+        'EA-18G Growler',
+        'E-2D Hawkeye',
+        'CMV-22B Osprey',
+        'MH-60 Seahawk',
+      ],
+    },
+  ],
+  sensors: [
+    {
+      id: 'sen-1',
+      name: 'Hệ thống cảm biến và xử lý',
+      value:
+        'Ra đa cảnh giới trên không 3D AN/SPS-48E; ra đa cảnh giới trên không 2D AN/SPS-49(V)',
+    },
+    {
+      id: 'sen-2',
+      name: 'Tác chiến điện tử và mồi bẫy',
+      value: 'Hệ thống gây nhiễu và phóng mồi bẫy',
+    },
+  ],
   imagesSatellites: [
     {
       url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&q=80',
