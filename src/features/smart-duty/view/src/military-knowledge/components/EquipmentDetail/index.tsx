@@ -90,7 +90,7 @@ export function EquipmentDetail() {
                 <Grid size={{ xs: 12, lg: 6 }}>
                   <KnowledgeGraphSection
                     subtitle={dashboard.subtitle}
-                    nodes={dashboard.knowledgeNodes}
+                    graph={dashboard.knowledgeGraph}
                     stats={dashboard.knowledgeStats}
                   />
                 </Grid>

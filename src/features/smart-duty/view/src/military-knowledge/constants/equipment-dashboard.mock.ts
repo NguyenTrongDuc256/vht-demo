@@ -1,10 +1,35 @@
 /** Dữ liệu UI bổ sung — chưa có trong API get detail, tách riêng đến khi BE bổ sung */
 
-export interface DashboardKnowledgeNode {
+export type KnowledgeGraphNodeType =
+  | 'carrier'
+  | 'weapon'
+  | 'fleet'
+  | 'air'
+  | 'radar'
+  | 'mission';
+
+export interface KnowledgeGraphNode {
   id: string;
+  name: string;
+  val: number;
+  color: string;
+  size: number;
+  type: KnowledgeGraphNodeType;
+  /** Vị trí cố định (force-graph pin) */
+  fx?: number;
+  fy?: number;
+}
+
+export interface KnowledgeGraphLink {
+  source: string;
+  target: string;
   label: string;
   color: string;
-  angle: number;
+}
+
+export interface KnowledgeGraphData {
+  nodes: KnowledgeGraphNode[];
+  links: KnowledgeGraphLink[];
 }
 
 export interface DashboardTimelineEvent {
@@ -28,18 +53,151 @@ export interface DashboardLocationFrequency {
   count: number;
 }
 
+/** Đồ thị tri thức CV-18 — cấp 1 (vòng quanh tâm) + cấp 2 (nhánh con) */
+export const CV18_KNOWLEDGE_GRAPH: KnowledgeGraphData = {
+  nodes: [
+    {
+      id: 'cv18',
+      name: 'CV-18 PHÚC KIẾN',
+      val: 100,
+      color: '#00d2ff',
+      size: 28,
+      type: 'carrier',
+      fx: 0,
+      fy: 0,
+    },
+    // —— cấp 1 ——
+    {
+      id: 'vukhi',
+      name: 'HỆ THỐNG VŨ KHÍ',
+      val: 15,
+      color: '#2575fc',
+      size: 18,
+      type: 'weapon',
+      fx: -150,
+      fy: -90,
+    },
+    {
+      id: 'hotong',
+      name: 'HẠM ĐỘI HỘ TỐNG',
+      val: 15,
+      color: '#f5a623',
+      size: 18,
+      type: 'fleet',
+      fx: 170,
+      fy: -70,
+    },
+    {
+      id: 'kq',
+      name: 'KHÔNG QUÂN',
+      val: 15,
+      color: '#bfff00',
+      size: 18,
+      type: 'air',
+      fx: 40,
+      fy: 160,
+    },
+    {
+      id: 'radar',
+      name: 'RADAR & TÁC CHIẾN',
+      val: 15,
+      color: '#ff0090',
+      size: 18,
+      type: 'radar',
+      fx: -160,
+      fy: 120,
+    },
+    {
+      id: 'nhiemvu',
+      name: 'NHIỆM VỤ',
+      val: 15,
+      color: '#a855f7',
+      size: 18,
+      type: 'mission',
+      fx: 200,
+      fy: 100,
+    },
+    // —— cấp 2 ——
+    {
+      id: 'vukhi1',
+      name: 'TÊN LỬA ĐIỆN TỬ',
+      val: 80,
+      color: '#4dabf7',
+      size: 14,
+      type: 'weapon',
+      fx: -60,
+      fy: -220,
+    },
+    {
+      id: 'vukhi2',
+      name: 'PHÁO CỰ LY',
+      val: 60,
+      color: '#4dabf7',
+      size: 12,
+      type: 'weapon',
+      fx: -220,
+      fy: -180,
+    },
+    {
+      id: 'hotong1',
+      name: 'TYPE-055',
+      val: 70,
+      color: '#ff9f43',
+      size: 14,
+      type: 'fleet',
+      fx: 280,
+      fy: -160,
+    },
+    {
+      id: 'kq1',
+      name: 'J-15B',
+      val: 70,
+      color: '#86efac',
+      size: 14,
+      type: 'air',
+      fx: 120,
+      fy: 260,
+    },
+    {
+      id: 'kq2',
+      name: 'KJ-600',
+      val: 60,
+      color: '#86efac',
+      size: 12,
+      type: 'air',
+      fx: -40,
+      fy: 280,
+    },
+    {
+      id: 'radar1',
+      name: 'TYPE-346B',
+      val: 70,
+      color: '#f472b6',
+      size: 14,
+      type: 'radar',
+      fx: -280,
+      fy: 200,
+    },
+  ],
+  links: [
+    { source: 'cv18', target: 'vukhi', label: 'Trang bị', color: '#00d2ff' },
+    { source: 'cv18', target: 'hotong', label: 'Được hỗ trợ', color: '#f5a623' },
+    { source: 'cv18', target: 'kq', label: 'Triển khai', color: '#bfff00' },
+    { source: 'cv18', target: 'radar', label: 'Sử dụng', color: '#ff0090' },
+    { source: 'cv18', target: 'nhiemvu', label: 'Có khả năng', color: '#a855f7' },
+    // cấp 2
+    { source: 'vukhi', target: 'vukhi1', label: 'Trang bị', color: '#4dabf7' },
+    { source: 'vukhi', target: 'vukhi2', label: 'Trang bị', color: '#4dabf7' },
+    { source: 'hotong', target: 'hotong1', label: 'Hộ tống', color: '#ff9f43' },
+    { source: 'kq', target: 'kq1', label: 'Triển khai', color: '#86efac' },
+    { source: 'kq', target: 'kq2', label: 'Triển khai', color: '#86efac' },
+    { source: 'radar', target: 'radar1', label: 'Định vị', color: '#f472b6' },
+  ],
+};
+
 export const EQUIPMENT_DASHBOARD_MOCK = {
   subtitle: 'CV-18 Phúc Kiến',
-  knowledgeNodes: [
-    { id: 'ew', label: 'Tác chiến điện tử', color: '#00d4ff', angle: 0 },
-    { id: 'log', label: 'Hậu cần', color: '#f5a623', angle: 45 },
-    { id: 'air', label: 'Không quân hải quân', color: '#ff6b6b', angle: 90 },
-    { id: 'radar', label: 'Radar & cảm biến', color: '#7c8cff', angle: 135 },
-    { id: 'missile', label: 'Tên lửa phòng không', color: '#00e5a0', angle: 180 },
-    { id: 'comm', label: 'Thông tin liên lạc', color: '#e879f9', angle: 225 },
-    { id: 'nav', label: 'Điều hướng', color: '#38bdf8', angle: 270 },
-    { id: 'ops', label: 'Tác nghiệp tàu sân bay', color: '#ff9f43', angle: 315 },
-  ] satisfies DashboardKnowledgeNode[],
+  knowledgeGraph: CV18_KNOWLEDGE_GRAPH,
   knowledgeStats: [
     { label: 'Trọng tải', value: '80.000 tấn' },
     { label: 'Chiều dài', value: '316 m' },
