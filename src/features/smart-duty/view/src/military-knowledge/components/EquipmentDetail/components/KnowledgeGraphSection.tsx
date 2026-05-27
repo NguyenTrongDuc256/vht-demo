@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Typography, Tabs, Tab, Grid } from '@mui/material';
 import HubIcon from '@mui/icons-material/Hub';
-import ForceGraph2D from 'react-force-graph-2d';
+import ForceGraph2D, { type ForceGraphMethods } from 'react-force-graph-2d';
 
 import type { KnowledgeGraphData, KnowledgeGraphNode } from '@smart-duty/logic';
 import { DashboardCard } from './DashboardCard';
 import { equipmentColors } from '../theme';
 
 const DETAIL_TABS = ['Tổng quan', 'Thông số', 'Quan hệ'];
+
+/** Zoom khi vừa load trang — chỉnh số này nếu đồ thị quá to/nhỏ */
+const INITIAL_ZOOM = 0.55;
+/** Zoom khi click vào node */
+const NODE_CLICK_ZOOM = 2.5;
 
 type ForceGraphNode = KnowledgeGraphNode & { x?: number; y?: number };
 type ForceGraphLink = KnowledgeGraphData['links'][number] & {
@@ -32,7 +37,8 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
   const [graphSize, setGraphSize] = useState({ width: 280, height: 240 });
 
 
-  const graphRef = useRef(null);
+  const graphRef = useRef<ForceGraphMethods<ForceGraphNode> | undefined>(undefined);
+  const initialViewApplied = useRef(false);
   
   // Giữ Map ảnh ổn định qua các lần re-render
   const nodeImageRef = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -87,6 +93,15 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
     return `Các quan hệ liên quan tới nút "${selectedNode.name}".`;
   }, [selectedNode, detailTab, equipmentName]);
 
+  const applyInitialView = useCallback(() => {
+    const fg = graphRef.current;
+    if (!fg || initialViewApplied.current || graphSize.width <= 0) return;
+
+    initialViewApplied.current = true;
+    fg.centerAt(0, 0, 400);
+    fg.zoom(INITIAL_ZOOM, 400);
+  }, [graphSize.width]);
+
   const preloadImage = (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve) => {
       const map = nodeImageRef.current;
@@ -111,12 +126,21 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
   };
 
   useEffect(() => {
-    const urls = [...new Set(data.nodes.map((n) => n.icon).filter(Boolean))] as string[];
-    Promise.all(urls.map(preloadImage)).then(() => {
-      graphRef.current?.refresh();
-    });
+    initialViewApplied.current = false;
   }, [data]);
 
+  useEffect(() => {
+    applyInitialView();
+  }, [applyInitialView, data]);
+
+  useEffect(() => {
+    const urls = [...new Set(data.nodes.map((n) => n.icon).filter(Boolean))] as string[];
+    Promise.all(urls.map(preloadImage)).then(() => {
+      // API không có refresh() — resumeAnimation() để canvas vẽ lại icon
+      graphRef.current?.resumeAnimation();
+      applyInitialView();
+    });
+  }, [data, applyInitialView]);
 
   useEffect(() => {
     const el = graphWrapRef.current;
@@ -209,7 +233,9 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
           height={graphSize.height}
           graphData={data}
           backgroundColor="#061122"
+          autoPauseRedraw={false}
           cooldownTicks={100}
+          onEngineStop={applyInitialView}
           linkDirectionalParticles={2}
           linkDirectionalParticleWidth={2}
           linkDirectionalParticleColor={(link: ForceGraphLink) => link.color}
@@ -217,7 +243,7 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
             setSelectedNode(node);
             if (node.x == null || node.y == null || !graphRef.current) return;
             graphRef.current.centerAt(node.x, node.y, 1000);
-            graphRef.current.zoom(3, 1000);
+            graphRef.current.zoom(NODE_CLICK_ZOOM, 1000);
           }}
           onBackgroundClick={() => setSelectedNode(null)}
           nodeCanvasObjectMode={() => 'replace'}
