@@ -22,6 +22,11 @@ export {
   getEquipmentDisplayTitle,
 } from './utils/equipment.utils';
 export {
+  BRANCHES,
   buildKnowledgeGraphFromEquipment,
+  DANH_SACH_NHANH,
+  NODE_GOC,
+  ROOT_NODE_CONFIG,
   transformToGraphData,
 } from './utils/knowledge-graph.transform';
+export type { BranchConfig, CauHinhNhanh } from './utils/knowledge-graph.transform';

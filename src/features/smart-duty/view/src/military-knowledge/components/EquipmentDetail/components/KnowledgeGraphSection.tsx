@@ -9,6 +9,16 @@ import { equipmentColors } from '../theme';
 
 const DETAIL_TABS = ['Tổng quan', 'Thông số', 'Quan hệ'];
 
+type ForceGraphNode = KnowledgeGraphNode & { x?: number; y?: number };
+type ForceGraphLink = KnowledgeGraphData['links'][number] & {
+  source: ForceGraphNode | string;
+  target: ForceGraphNode | string;
+};
+
+function isForceGraphNode(value: ForceGraphNode | string): value is ForceGraphNode {
+  return typeof value === 'object' && value != null && value.x != null && value.y != null;
+}
+
 export interface KnowledgeGraphSectionProps {
   graph: KnowledgeGraphData;
   equipmentName?: string;
@@ -28,6 +38,54 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
   const nodeImageRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   const data = useMemo(() => graph, [graph]);
+
+  const panelTitle = selectedNode?.name ?? equipmentName ?? 'Chi tiết trang bị';
+
+  const stats = useMemo(() => {
+    if (!selectedNode) return [];
+
+    switch (detailTab) {
+      case 0:
+        return [
+          { label: 'Loại', value: selectedNode.type },
+          { label: 'Trọng số', value: String(selectedNode.val) },
+          { label: 'Kích thước', value: String(selectedNode.size) },
+        ];
+      case 1:
+        return [
+          { label: 'Màu', value: selectedNode.color },
+          { label: 'Trọng số', value: String(selectedNode.val) },
+          { label: 'Kích thước node', value: String(selectedNode.size) },
+        ];
+      case 2: {
+        const related = data.links.filter(
+          (link) => link.source === selectedNode.id || link.target === selectedNode.id,
+        );
+        if (!related.length) {
+          return [{ label: 'Quan hệ', value: 'Không có liên kết' }];
+        }
+        return related.map((link, index) => ({
+          label: `Liên kết ${index + 1}`,
+          value: link.label,
+        }));
+      }
+      default:
+        return [];
+    }
+  }, [selectedNode, detailTab, data.links]);
+
+  const tabDescription = useMemo(() => {
+    if (!selectedNode) {
+      return equipmentName ?? 'Chọn một nút trên đồ thị để xem chi tiết quan hệ trang bị.';
+    }
+    if (detailTab === 0) {
+      return selectedNode.description ?? `Tổng quan nút "${selectedNode.name}".`;
+    }
+    if (detailTab === 1) {
+      return `Thông số hiển thị của nút "${selectedNode.name}".`;
+    }
+    return `Các quan hệ liên quan tới nút "${selectedNode.name}".`;
+  }, [selectedNode, detailTab, equipmentName]);
 
   const preloadImage = (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve) => {
@@ -78,7 +136,7 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
     return () => ro.disconnect();
   }, []);
 
-  const nodeCanvasObject = (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+  const nodeCanvasObject = (node: ForceGraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const { x, y } = node;
     if (x == null || y == null) return;
   
@@ -154,8 +212,8 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
           cooldownTicks={100}
           linkDirectionalParticles={2}
           linkDirectionalParticleWidth={2}
-          linkDirectionalParticleColor={(link: any) => link.color}
-          onNodeClick={(node: any) => {
+          linkDirectionalParticleColor={(link: ForceGraphLink) => link.color}
+          onNodeClick={(node: ForceGraphNode) => {
             setSelectedNode(node);
             if (node.x == null || node.y == null || !graphRef.current) return;
             graphRef.current.centerAt(node.x, node.y, 1000);
@@ -171,20 +229,17 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
             ctx.fill();
           }}
           nodeCanvasObject={nodeCanvasObject}
-          linkCanvasObject={(link: any, ctx) => {
-            const start = link.source;
-            const end = link.target;
+          linkCanvasObject={(link: ForceGraphLink, ctx) => {
+            const { source, target } = link;
+            if (!isForceGraphNode(source) || !isForceGraphNode(target)) return;
 
-            if (
-              typeof start !== 'object' ||
-              typeof end !== 'object'
-            )
-              return;
+            const { x: x1, y: y1 } = source;
+            const { x: x2, y: y2 } = target;
 
             // vẽ đường nối
             ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y);
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
 
             ctx.strokeStyle = link.color;
             ctx.lineWidth = 2;
@@ -196,8 +251,8 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
             ctx.setLineDash([]);
 
             // vẽ nhãn liên kết
-            const textPosX = (start.x + end.x) / 2;
-            const textPosY = (start.y + end.y) / 2;
+            const textPosX = (x1 + x2) / 2;
+            const textPosY = (y1 + y2) / 2;
 
             ctx.fillStyle = '#ffffffaa';
             ctx.font = '10px Sans-Serif';
@@ -210,7 +265,7 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
 
         <Box sx={{ flex: 1, p: 1.5, overflow: 'auto' }}>
           <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, mb: 0.5 }}>
-            {/* {panelTitle} */}
+            {panelTitle}
           </Typography>
           <Tabs
             value={detailTab}
@@ -238,14 +293,10 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
             variant="caption"
             sx={{ color: equipmentColors.textSecondary, display: 'block', lineHeight: 1.5, mb: 1.5 }}
           >
-            {selectedNode
-              ? selectedNode.description ??
-                `Nút "${selectedNode.name}" — loại ${selectedNode.type}, trọng số ${selectedNode.val}.`
-              : equipmentName ??
-                'Chọn một nút trên đồ thị để xem chi tiết quan hệ trang bị.'}
+            {tabDescription}
           </Typography>
           <Grid container spacing={1}>
-            {/* {stats.map((s) => (
+            {stats.map((s) => (
               <Grid key={s.label} size={4}>
                 <Typography variant="caption" sx={{ color: equipmentColors.textMuted }}>
                   {s.label}
@@ -256,7 +307,7 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
                   {s.value}
                 </Typography>
               </Grid>
-            ))} */}
+            ))}
           </Grid>
         </Box>
       </Box>

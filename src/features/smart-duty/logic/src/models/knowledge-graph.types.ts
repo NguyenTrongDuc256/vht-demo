@@ -1,5 +1,5 @@
 /**
- * Kiểu node trên đồ thị — dùng để chọn icon (KNOWLEDGE_GRAPH_ICONS).
+ * Kiểu node trên đồ thị — cấu hình icon/màu tại BRANCHES (knowledge-graph.transform.ts).
  * Thêm type mới: bổ sung union ở đây + bản đồ icon + BRANCH_NODE_TYPE nếu có nhánh API mới.
  */
 export type KnowledgeGraphNodeType =

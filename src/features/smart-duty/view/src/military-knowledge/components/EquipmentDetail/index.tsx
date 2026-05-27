@@ -15,7 +15,7 @@ import {
   getEquipmentHeroImage,
   getEquipmentSatelliteImage,
 } from '@smart-duty/logic';
-import { EQUIPMENT_DASHBOARD_MOCK, KNOWLEDGE_GRAPH_ICONS } from '../../constants/equipment-dashboard.mock';
+import { EQUIPMENT_DASHBOARD_MOCK } from '../../constants/equipment-dashboard.mock';
 import { equipmentTheme } from './theme';
 import { HeroRow } from './components/HeroRow';
 import { SatelliteSection } from './components/SatelliteSection';
@@ -33,9 +33,9 @@ export function EquipmentDetail() {
     MkService.getEquipmentModel(EQUIPMENT_QUERY_PARAMS),
   );
 
-  // Chuyển API → graphData (transformToGraphData). Icon: KNOWLEDGE_GRAPH_ICONS bên dưới
+  // Cấu hình nhánh/icon/màu: logic/utils/knowledge-graph.transform.ts → BRANCHES
   const knowledgeGraph = useMemo(
-    () => (data ? transformToGraphData(data, KNOWLEDGE_GRAPH_ICONS) : null),
+    () => (data ? transformToGraphData(data) : null),
     [data],
   );
 
