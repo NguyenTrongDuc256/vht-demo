@@ -3,15 +3,17 @@
  * Thêm type mới: bổ sung union ở đây + bản đồ icon + BRANCH_NODE_TYPE nếu có nhánh API mới.
  */
 export type KnowledgeGraphNodeType =
-  | 'carrier'
-  | 'weapon'
-  | 'fleet'
-  | 'air'
-  | 'radar'
-  | 'mission';
+  | "carrier"
+  | "weapon"
+  | "fleet"
+  | "air"
+  | "radar"
+  | "mission";
 
 /** Bản đồ icon theo type — truyền từ bên ngoài khi dựng đồ thị */
-export type KnowledgeGraphIconMap = Partial<Record<KnowledgeGraphNodeType, string>>;
+export type KnowledgeGraphIconMap = Partial<
+  Record<KnowledgeGraphNodeType, string>
+>;
 
 export interface KnowledgeGraphNode {
   id: string;
@@ -19,6 +21,7 @@ export interface KnowledgeGraphNode {
   val: number;
   color: string;
   size: number;
+  level: number;
   type: KnowledgeGraphNodeType;
   fx?: number;
   fy?: number;

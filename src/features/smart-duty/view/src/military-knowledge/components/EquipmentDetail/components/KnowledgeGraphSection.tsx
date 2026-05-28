@@ -14,11 +14,40 @@ const INITIAL_ZOOM = 0.55;
 /** Zoom khi click vào node */
 const NODE_CLICK_ZOOM = 2.5;
 
-type ForceGraphNode = KnowledgeGraphNode & { x?: number; y?: number };
+type ForceGraphNode = KnowledgeGraphNode & { 
+  x?: number; 
+  y?: number; 
+  fx?: number | null; 
+  fy?: number | null;
+  __bckp_fx?: number;
+  __bckp_fy?: number;
+};
 type ForceGraphLink = KnowledgeGraphData['links'][number] & {
   source: ForceGraphNode | string;
   target: ForceGraphNode | string;
 };
+
+/** Tiện ích vẽ văn bản tự xuống dòng */
+function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+  const words = text.split(' ');
+  let line = '';
+  let testY = y;
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      ctx.fillText(line, x, testY);
+      line = words[n] + ' ';
+      testY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line, x, testY);
+  return testY;
+}
 
 function isForceGraphNode(value: ForceGraphNode | string): value is ForceGraphNode {
   return typeof value === 'object' && value != null && value.x != null && value.y != null;
@@ -32,6 +61,8 @@ export interface KnowledgeGraphSectionProps {
 export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSectionProps) {
   const [detailTab, setDetailTab] = useState(0);
   const [selectedNode, setSelectedNode] = useState<KnowledgeGraphNode | null>(null);
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   const graphWrapRef = useRef<HTMLDivElement>(null);
   const [graphSize, setGraphSize] = useState({ width: 280, height: 240 });
@@ -43,7 +74,35 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
   // Giữ Map ảnh ổn định qua các lần re-render
   const nodeImageRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
-  const data = useMemo(() => graph, [graph]);
+  const data = useMemo(() => {
+    // Chỉ hiển thị node level 0, level 1, và level 2 của những node level 1 đã được expand
+    const visibleNodeIds = new Set<string>();
+    
+    graph.nodes.forEach(node => {
+      if (node.level <= 1) {
+        visibleNodeIds.add(node.id);
+      }
+    });
+
+    // Thêm các node con của node đã expanded
+    graph.links.forEach(link => {
+      const sourceId = typeof link.source === 'string' ? link.source : (link.source as any).id;
+      const targetId = typeof link.target === 'string' ? link.target : (link.target as any).id;
+      
+      if (expandedNodes.has(sourceId)) {
+        visibleNodeIds.add(targetId);
+      }
+    });
+
+    return {
+      nodes: graph.nodes.filter(n => visibleNodeIds.has(n.id)),
+      links: graph.links.filter(l => {
+        const sId = typeof l.source === 'string' ? l.source : (l.source as any).id;
+        const tId = typeof l.target === 'string' ? l.target : (l.target as any).id;
+        return visibleNodeIds.has(sId) && visibleNodeIds.has(tId);
+      })
+    };
+  }, [graph, expandedNodes]);
 
   const panelTitle = selectedNode?.name ?? equipmentName ?? 'Chi tiết trang bị';
 
@@ -199,11 +258,21 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
   
     // vẽ tên node
     ctx.shadowBlur = 0;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${14 / globalScale}px Sans-serif`;
+    const fontSize = 16 / globalScale; 
+    ctx.font = `bold ${fontSize}px Sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText(node.name, x, y + radius + 10);
+
+    const labelY = y + radius + 12;
+    const maxWidth = 120 / globalScale;
+    const lineHeight = fontSize * 1.2;
+
+    // Vẽ bóng đổ cho chữ để nổi bật trên nền tối
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = '#ffffff';
+    wrapText(ctx, node.name, x, labelY, maxWidth, lineHeight);
+    ctx.shadowBlur = 0;
   };
 
   return (
@@ -236,16 +305,36 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
           autoPauseRedraw={false}
           cooldownTicks={100}
           onEngineStop={applyInitialView}
+          d3AlphaDecay={0.02}
+          d3VelocityDecay={0.3}
           linkDirectionalParticles={2}
           linkDirectionalParticleWidth={2}
           linkDirectionalParticleColor={(link: ForceGraphLink) => link.color}
           onNodeClick={(node: ForceGraphNode) => {
             setSelectedNode(node);
+            setIsPanelOpen(true);
+
+            // Toggle expand nếu là node cấp 1
+            if (node.level === 1) {
+              setExpandedNodes(prev => {
+                const next = new Set(prev);
+                if (next.has(node.id)) {
+                  next.delete(node.id);
+                } else {
+                  next.add(node.id);
+                }
+                return next;
+              });
+            }
+
             if (node.x == null || node.y == null || !graphRef.current) return;
             graphRef.current.centerAt(node.x, node.y, 1000);
             graphRef.current.zoom(NODE_CLICK_ZOOM, 1000);
           }}
-          onBackgroundClick={() => setSelectedNode(null)}
+          onBackgroundClick={() => {
+            setSelectedNode(null);
+            setIsPanelOpen(false);
+          }}
           nodeCanvasObjectMode={() => 'replace'}
           nodePointerAreaPaint={(node, color, ctx) => {
             if (node.x == null || node.y == null) return;
@@ -289,53 +378,71 @@ export function KnowledgeGraphSection({ graph, equipmentName }: KnowledgeGraphSe
 
         </Box>
 
-        <Box sx={{ flex: 1, p: 1.5, overflow: 'auto' }}>
-          <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, mb: 0.5 }}>
-            {panelTitle}
-          </Typography>
-          <Tabs
-            value={detailTab}
-            onChange={(_, v) => setDetailTab(v)}
-            sx={{
-              minHeight: 28,
-              mb: 1,
-              '& .MuiTab-root': {
-                minHeight: 28,
-                py: 0,
-                px: 1,
-                fontSize: '0.65rem',
-                minWidth: 60,
+        {isPanelOpen && (
+          <Box sx={{ flex: 0.8, p: 1.5, overflow: 'auto', position: 'relative', borderLeft: `1px solid ${equipmentColors.cardBorderSubtle}` }}>
+            <Box 
+              onClick={() => setIsPanelOpen(false)}
+              sx={{ 
+                position: 'absolute', 
+                top: 8, 
+                right: 8, 
+                cursor: 'pointer',
                 color: equipmentColors.textMuted,
-                '&.Mui-selected': { color: equipmentColors.accent },
-              },
-              '& .MuiTabs-indicator': { bgcolor: equipmentColors.accent, height: 2 },
-            }}
-          >
-            {DETAIL_TABS.map((t) => (
-              <Tab key={t} label={t} />
-            ))}
-          </Tabs>
-          <Typography
-            variant="caption"
-            sx={{ color: equipmentColors.textSecondary, display: 'block', lineHeight: 1.5, mb: 1.5 }}
-          >
-            {tabDescription}
-          </Typography>
-          <Grid container spacing={1}>
-            {stats.map((s) => (
-              <Grid key={s.label} size={4}>
-                <Typography variant="caption" sx={{ color: equipmentColors.textMuted }}>
-                  {s.label}
-                </Typography>
-                <Typography
-                  sx={{ fontSize: '0.72rem', fontWeight: 600, color: equipmentColors.accentOrange }}
-                >
-                  {s.value}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                '&:hover': { color: '#ffffff' },
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                zIndex: 10
+              }}
+            >
+              ✕
+            </Box>
+            <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, mb: 0.5, pr: 3 }}>
+              {panelTitle}
+            </Typography>
+            <Tabs
+              value={detailTab}
+              onChange={(_, v) => setDetailTab(v)}
+              sx={{
+                minHeight: 28,
+                mb: 1,
+                '& .MuiTab-root': {
+                  minHeight: 28,
+                  py: 0,
+                  px: 1,
+                  fontSize: '0.65rem',
+                  minWidth: 60,
+                  color: equipmentColors.textMuted,
+                  '&.Mui-selected': { color: equipmentColors.accent },
+                },
+                '& .MuiTabs-indicator': { bgcolor: equipmentColors.accent, height: 2 },
+              }}
+            >
+              {DETAIL_TABS.map((t) => (
+                <Tab key={t} label={t} />
+              ))}
+            </Tabs>
+            <Typography
+              variant="caption"
+              sx={{ color: equipmentColors.textSecondary, display: 'block', lineHeight: 1.5, mb: 1.5 }}
+            >
+              {tabDescription}
+            </Typography>
+            <Grid container spacing={1}>
+              {stats.map((s) => (
+                <Grid key={s.label} size={4}>
+                  <Typography variant="caption" sx={{ color: equipmentColors.textMuted }}>
+                    {s.label}
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: '0.72rem', fontWeight: 600, color: equipmentColors.accentOrange }}
+                  >
+                    {s.value}
+                  </Typography>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
       </Box>
     </DashboardCard>
   );
