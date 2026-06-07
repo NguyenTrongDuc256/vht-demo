@@ -11,6 +11,10 @@ export default defineConfig({
         __dirname,
         'src/features/smart-duty/logic/src',
       ),
+      '@smart-duty/view': path.resolve(
+        __dirname,
+        'src/features/smart-duty/view/src',
+      ),
       '@app': path.resolve(__dirname, 'src/app'),
     },
   },

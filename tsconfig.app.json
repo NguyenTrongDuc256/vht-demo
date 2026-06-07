@@ -17,6 +17,8 @@
     "paths": {
       "@smart-duty/logic": ["./src/features/smart-duty/logic/src/index.ts"],
       "@smart-duty/logic/*": ["./src/features/smart-duty/logic/src/*"],
+      "@smart-duty/view": ["./src/features/smart-duty/view/src/index.ts"],
+      "@smart-duty/view/*": ["./src/features/smart-duty/view/src/*"],
       "@app/*": ["./src/app/*"]
     },
 

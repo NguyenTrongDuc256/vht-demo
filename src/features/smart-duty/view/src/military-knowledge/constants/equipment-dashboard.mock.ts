@@ -7,7 +7,7 @@ export type {
   KnowledgeGraphNodeType,
 } from '@smart-duty/logic';
 
-import type { KnowledgeGraphData } from '@smart-duty/logic';
+import type { IEventSituation, KnowledgeGraphData } from '@smart-duty/logic';
 
 export interface DashboardTimelineEvent {
   id: string;
@@ -172,6 +172,56 @@ export const CV18_KNOWLEDGE_GRAPH: KnowledgeGraphData = {
   ],
 };
 
+/** Mock tình huống — dùng cho SituationItem demo (chưa có API) */
+export const MOCK_SITUATIONS = [
+  {
+    mention: 'Phát hiện tàu sân bay CV-18 tại vùng biển Đông',
+    refs: [
+      'Vệ tinh SAR ghi nhận lúc 14:32 UTC',
+      'Tốc độ 18 hải lý, hướng nam đông',
+      'Tọa độ: 16.2°N, 112.8°E',
+    ],
+    sources: [
+      {
+        from: 'satellite',
+        id: 'src-1',
+        type: 'DOC',
+        name: 'Báo cáo SAR',
+        storageFileName: 'sar-report.pdf',
+      },
+      {
+        from: 'sigint',
+        id: 'src-2',
+        type: 'DOC',
+        name: 'Tín hiệu radar',
+      },
+    ],
+    threatLevel: 4,
+    entities: [{ type: 'VES' }],
+  },
+  {
+    mention: 'Xuất hiện tại căn cứ Du Lâm — neo đậu 72 giờ',
+    refs: ['Ảnh thương mại Planet Labs\nXác nhận bởi 2 nguồn độc lập'],
+    sources: [
+      {
+        from: 'commercial',
+        id: 'src-3',
+        type: 'IMG',
+        name: 'Ảnh vệ tinh Du Lâm',
+      },
+    ],
+    threatLevel: 2,
+    entities: [{ type: 'VES' }],
+  },
+  {
+    mention: 'Cập nhật chữ ký RCS sau nâng cấp radar Type-346B',
+    refs: ['Nguồn: CSDL nội bộ\nKhông có hoạt động di chuyển bất thường'],
+    sources: [],
+    threatLevel: 1,
+    entities: [{ type: 'VES' }],
+  },
+] satisfies IEventSituation[];
+
 export const EQUIPMENT_DASHBOARD_MOCK = {
   subtitle: 'CV-18 Phúc Kiến',
   knowledgeGraph: CV18_KNOWLEDGE_GRAPH,
@@ -243,4 +293,5 @@ export const EQUIPMENT_DASHBOARD_MOCK = {
     { location: 'Đài Loan EO', count: 18 },
     { location: 'Hoàng Sa', count: 14 },
   ] satisfies DashboardLocationFrequency[],
+  situations: MOCK_SITUATIONS,
 };
